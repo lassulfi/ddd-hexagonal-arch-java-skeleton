@@ -1,0 +1,22 @@
+version: '3.9'
+
+services:
+  
+  postgres:
+    image: postgres:16
+    container_name: musicmanager-db
+    environment:
+      - POSTGRES_DB=musicdb
+      - POSTGRES_USER=musicuser
+      - POSTGRES_PASSWORD=musicpass
+    ports:
+      - "5432:5432"
+    volumes:
+      - .docker/postgres_data:/var/lib/postgresql/data
+    
+  rabbitmq:
+    image: rabbitmq:3-management
+    container_name: musicmanager-mq
+    ports:
+      - "5672:5672"
+      - "15672:15672"
