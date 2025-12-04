@@ -1,7 +1,6 @@
 package com.github.lassulfi.musicmanager.domain.album.model;
 
 import java.time.LocalDate;
-import java.util.Collections;
 
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.DisplayName;
@@ -9,6 +8,7 @@ import org.junit.jupiter.api.Test;
 
 import com.github.lassulfi.musicmanager.domain.artist.model.ArtistId;
 import com.github.lassulfi.musicmanager.domain.exceptions.ValidationException;
+import com.github.lassulfi.musicmanager.domain.song.model.SongId;
 
 public class AlbumTest {
 
@@ -54,16 +54,33 @@ public class AlbumTest {
 		final var expectedTitle = "t";
 		final var actualAlbum = Album.newAlbum(expectedTitle, LocalDate.now(), expectedArtistId);
 
-		final var expectedCollaboratorId = ArtistId.unique();
-		final var expectedCollaborators = Collections.singleton(expectedCollaboratorId);
-		
-		final var expectedSong = "song 1";
+		final var expectedSong = SongId.unique();
 
 		// when
-		actualAlbum.addSong(expectedSong, null, LocalDate.now(), expectedCollaborators);
+		actualAlbum.addSong(expectedSong);
 
 		// then
 		Assertions.assertEquals(1, actualAlbum.allSongs().size());
+	}
+
+	@Test
+	@DisplayName("Should not add duplicated songs to the album")
+	void testAddSongWithDuplicatedSong() {
+		// given
+		final var expectedArtistId = ArtistId.unique();
+		final var expectedTitle = "t";
+		final var actualAlbum = Album.newAlbum(expectedTitle, LocalDate.now(), expectedArtistId);
+		
+		final var expectedSong = SongId.unique();
+		actualAlbum.addSong(expectedSong);
+		
+		final var expectedMessage = String.format("Song of id %s already added to the album", expectedSong.toString());
+
+		// when
+		final var actualException = Assertions.assertThrows(ValidationException.class, () -> actualAlbum.addSong(expectedSong));
+
+		// then
+		Assertions.assertEquals(expectedMessage, actualException.getMessage());
 	}
 
 }

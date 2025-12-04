@@ -6,6 +6,7 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
+import com.github.lassulfi.musicmanager.domain.album.model.AlbumId;
 import com.github.lassulfi.musicmanager.domain.artist.model.ArtistId;
 import com.github.lassulfi.musicmanager.domain.exceptions.ValidationException;
 
@@ -142,5 +143,22 @@ public class SongTest {
         Assertions.assertThrows(UnsupportedOperationException.class, () -> {
             actualSong.allCollaborators().add(ArtistId.unique());
         });
+    }
+
+    @Test
+    @DisplayName("Should assign album")
+    void testAssignAlbumAssignsAnAlbum() {
+        // given
+        final var expectedArtistId = ArtistId.unique();
+        final var actualSong = Song.newSong("t", null, LocalDate.now(), expectedArtistId);
+
+        final var expectedAlbumId = AlbumId.unique();
+
+        // when
+        actualSong.assignToAlbum(expectedAlbumId);
+
+        // then
+        Assertions.assertEquals(expectedAlbumId, actualSong.getAlbum());
+        
     }
 }

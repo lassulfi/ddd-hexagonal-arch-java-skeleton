@@ -7,7 +7,7 @@ import java.util.Set;
 
 import com.github.lassulfi.musicmanager.domain.artist.model.ArtistId;
 import com.github.lassulfi.musicmanager.domain.exceptions.ValidationException;
-import com.github.lassulfi.musicmanager.domain.song.model.Song;
+import com.github.lassulfi.musicmanager.domain.song.model.SongId;
 
 public class Album {
 
@@ -19,9 +19,9 @@ public class Album {
 
     private ArtistId artistId;
 
-    private Set<Song> songs;
+    private Set<SongId> songs;
 
-    public Album(AlbumId albumId, String title, LocalDate releaseDate, ArtistId artistId, Set<Song> songs) {
+    public Album(AlbumId albumId, String title, LocalDate releaseDate, ArtistId artistId, Set<SongId> songs) {
         if (albumId == null) {
             throw new ValidationException("Invalid AlbumId");
         }
@@ -67,16 +67,15 @@ public class Album {
         this.artistId = artistId;
     }
 
-    public Set<Song> allSongs() {
+    public Set<SongId> allSongs() {
         return Collections.unmodifiableSet(this.songs);
     }
 
-    public void addSong(String title, String lyrics, LocalDate releaseDate, Set<ArtistId> collaborators) {
-        final var aSong = Song.newSong(title, lyrics, releaseDate, this.artistId);
-
-        for (var collaborator : collaborators) {
-            aSong.addCollaborator(collaborator);
-        }
+    public void addSong(final SongId aSong) {
+        this.allSongs().stream().filter(s -> aSong.equals(s)).findFirst()
+                .ifPresent(s -> {
+                    throw new ValidationException(String.format("Song of id %s already added to the album", s.toString()));
+                });
 
         this.songs.add(aSong);
     }

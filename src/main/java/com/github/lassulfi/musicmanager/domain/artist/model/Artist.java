@@ -5,9 +5,9 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 
-import com.github.lassulfi.musicmanager.domain.album.model.Album;
+import com.github.lassulfi.musicmanager.domain.album.model.AlbumId;
 import com.github.lassulfi.musicmanager.domain.exceptions.ValidationException;
-import com.github.lassulfi.musicmanager.domain.song.model.Song;
+import com.github.lassulfi.musicmanager.domain.song.model.SongId;
 import com.github.lassulfi.musicmanager.domain.valueobjects.Lifetime;
 import com.github.lassulfi.musicmanager.domain.valueobjects.Location;
 import com.github.lassulfi.musicmanager.domain.valueobjects.Name;
@@ -25,13 +25,13 @@ public class Artist {
 
     private Lifetime lifetime;
 
-    private Set<Album> albums;
+    private Set<AlbumId> albums;
 
-    private Set<Song> songs;
+    private Set<SongId> songs;
 
     public Artist(final ArtistId artistId, final String birthName, final String stageName, final String country,
             final String state, final String city, final String nationality, final LocalDate birthDate,
-            final LocalDate dateOfDeath, Set<Album> albums, Set<Song> songs) {
+            final LocalDate dateOfDeath, Set<AlbumId> albums, Set<SongId> songs) {
         if (artistId == null) {
             throw new ValidationException("Invalid ArtistId");
         }
@@ -88,35 +88,28 @@ public class Artist {
         this.lifetime = new Lifetime(birthDate, dateOfDeath);
     }
 
-    public Set<Album> allAlbums() {
+    public Set<AlbumId> allAlbums() {
         return Collections.unmodifiableSet(this.albums);
     }
 
-    public void addAlbum(String title, LocalDate releaseDate) {
-        if (title == null || title.isBlank()) {
-            throw new ValidationException("Invalid Album title");
-        }
-
-        this.allAlbums().stream().filter(a -> a.getTitle().equals(title) && a.getReleaseDate().equals(releaseDate))
+    public void addAlbum(AlbumId anAlbum) {
+        this.allAlbums().stream().filter(a -> anAlbum.equals(a))
                 .findFirst().ifPresent(a -> {
                     throw new ValidationException("Album already released.");
                 });
 
-        final var anAlbum = Album.newAlbum(title, releaseDate, this.artistId);
-
         this.albums.add(anAlbum);
     }
 
-    public Set<Song> allSongs() {
+    public Set<SongId> allSongs() {
         return Collections.unmodifiableSet(songs);
     }
 
-    public void addSong(String title, String lyrics, LocalDate releaseDate, Set<ArtistId> collaborators) {
-        final var aSong = Song.newSong(title, lyrics, releaseDate, this.artistId);
-
-        for (var collaborator : collaborators) {
-            aSong.addCollaborator(collaborator);
-        }
+    public void addSong(SongId aSong) {
+        this.allSongs().stream().filter(s -> aSong.equals(s)).findFirst()
+                .ifPresent(s -> {
+                    throw new ValidationException("Song already released");
+                });
 
         this.songs.add(aSong);
     }

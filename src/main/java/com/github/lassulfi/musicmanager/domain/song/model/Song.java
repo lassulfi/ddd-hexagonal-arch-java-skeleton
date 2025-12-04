@@ -5,6 +5,7 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 
+import com.github.lassulfi.musicmanager.domain.album.model.AlbumId;
 import com.github.lassulfi.musicmanager.domain.artist.model.ArtistId;
 import com.github.lassulfi.musicmanager.domain.exceptions.ValidationException;
 
@@ -15,6 +16,8 @@ public class Song {
     private String title;
 
     private String lyrics;
+
+    private AlbumId albumId;
 
     private ArtistId artistId;
 
@@ -63,6 +66,10 @@ public class Song {
         return Collections.unmodifiableSet(this.collaborators);
     }
 
+    public AlbumId getAlbum() {
+        return this.albumId;
+    }
+
     private void setTitle(String title) {
         if (title == null || title.isBlank()) {
             throw new ValidationException("Invalid title");
@@ -99,6 +106,14 @@ public class Song {
         });
 
         this.collaborators.add(collaboratorId);
+    }
+
+    public void assignToAlbum(final AlbumId albumId) {
+        if (albumId == null) {
+            throw new ValidationException("Invalid AlbumId");
+        }
+
+        this.albumId = albumId;
     }
 
     @Override
